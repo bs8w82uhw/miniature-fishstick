@@ -4,10 +4,14 @@
 # To make this agent available, merge this file into the default repository branch.
 # For format details, see: https://gh.io/customagents/config
 
-name:
-description:
+name: Pipeline Assistant
+description: A fast agent for executing pipeline and automation tasks
 ---
 
-# My Agent
+# Pipeline Assistant
 
-быстрый агент который быдет выполнять конвеерные задачи 
+This agent helps with pipeline and automation tasks, including:
+- Setting up CI/CD workflows
+- Configuring build and deployment pipelines
+- Automating repetitive tasks
+- Managing workflow configurations 
