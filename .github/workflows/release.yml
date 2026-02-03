@@ -38,6 +38,6 @@ jobs:
           prerelease: false
           body: |
             Release ${{ steps.version.outputs.version }}
-            
+
             ## What's Changed
             Add your release notes here
