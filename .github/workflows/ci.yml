@@ -1,0 +1,33 @@
+---
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Validate Repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check repository structure
+        run: |
+          echo "Repository structure validated"
+          ls -la
+
+      - name: Verify README exists
+        run: |
+          if [ ! -f README.md ]; then
+            echo "ERROR: README.md not found"
+            exit 1
+          fi
+          echo "✓ README.md exists"

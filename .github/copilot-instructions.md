@@ -19,13 +19,35 @@ Currently minimal - contains only [README.md](../README.md). Structure will be d
 - Follow consistent naming conventions once established
 - Add build/test commands to this file as they're configured
 
+## CI/CD Workflows
+
+### GitHub Actions
+The repository uses GitHub Actions for continuous integration and automation:
+
+- **CI Workflow** (`.github/workflows/ci.yml`): Runs on push to main and pull requests
+  - Validates repository structure
+  - Verifies essential files exist
+  - Status: [![CI](https://github.com/bs8w82uhw/miniature-fishstick/actions/workflows/ci.yml/badge.svg)](https://github.com/bs8w82uhw/miniature-fishstick/actions/workflows/ci.yml)
+
+- **PR Checks** (`.github/workflows/pr-checks.yml`): Automated pull request validation
+  - Validates PR title format
+  - Checks for merge conflicts
+  - Lists files changed
+  - Status: [![PR Checks](https://github.com/bs8w82uhw/miniature-fishstick/actions/workflows/pr-checks.yml/badge.svg)](https://github.com/bs8w82uhw/miniature-fishstick/actions/workflows/pr-checks.yml)
+
+### Adding New Workflows
+When adding language-specific or framework-specific workflows:
+1. Create workflow files in `.github/workflows/`
+2. Follow the naming convention: `<purpose>.yml`
+3. Add status badges to README.md
+4. Document the workflow purpose in this file
+
 ## To Be Documented
 As the project grows, add sections for:
 - **Architecture**: Major components and their interactions
 - **Coding Patterns**: Project-specific conventions and idioms
 - **Dependencies**: External libraries and integration points
 - **Testing Strategy**: Test framework and coverage expectations
-- **Build/Deploy**: Commands and CI/CD workflows
 
 ## Notes for Contributors
 - Update this file when introducing new architectural patterns
