@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Validate Repository
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check file structure
+      run: |
+        echo "Repository structure:"
+        ls -la
+        
+    - name: Validate README exists
+      run: |
+        if [ ! -f README.md ]; then
+          echo "ERROR: README.md not found"
+          exit 1
+        fi
+        echo "✓ README.md found"
+        
+    - name: Check for basic files
+      run: |
+        echo "Checking for essential files..."
+        [ -f .gitignore ] && echo "✓ .gitignore found" || echo "⚠ .gitignore missing"
+        [ -f .editorconfig ] && echo "✓ .editorconfig found" || echo "⚠ .editorconfig missing"
+        [ -f SECURITY.md ] && echo "✓ SECURITY.md found" || echo "⚠ SECURITY.md missing"
+        echo "Validation complete!"
