@@ -119,10 +119,13 @@ miniature-fishstick/
 
 ### Последние коммиты
 
-1. **8b58879** - `copilot-swe-agent[bot]`, 57 секунд назад  
+1. **524db9e** - `copilot-swe-agent[bot]`  
+   `Add comprehensive OVERVIEW.md document in Russian`
+
+2. **8b58879** - `copilot-swe-agent[bot]`  
    `Initial plan`
 
-2. **e50069d** - `Aleksandr`, 12 часов назад  
+3. **e50069d** - `Aleksandr`  
    `Merge pull request #22 from bs8w82uhw/copilot/add-json-parsing-function`
 
 ### Ветки
