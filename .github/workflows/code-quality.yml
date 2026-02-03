@@ -19,6 +19,8 @@ jobs:
   markdown-lint:
     name: Markdown Linting
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
       - name: Checkout code
@@ -36,6 +38,8 @@ jobs:
   yaml-lint:
     name: YAML Linting
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
       - name: Checkout code
