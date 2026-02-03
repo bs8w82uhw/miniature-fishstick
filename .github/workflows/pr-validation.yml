@@ -1,0 +1,128 @@
+name: PR Validation
+
+# This workflow provides additional validation checks specifically for pull requests.
+# It helps maintain code quality and consistency across contributions.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+jobs:
+  pr-metadata:
+    name: PR Metadata Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Check PR details
+        run: |
+          echo "PR Number: ${{ github.event.pull_request.number }}"
+          echo "PR Title: ${{ github.event.pull_request.title }}"
+          echo "PR Author: ${{ github.event.pull_request.user.login }}"
+          echo "Base Branch: ${{ github.event.pull_request.base.ref }}"
+          echo "Head Branch: ${{ github.event.pull_request.head.ref }}"
+      
+      - name: Check PR title format
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          
+          # Warn if PR title is too short
+          if [ ${#PR_TITLE} -lt 10 ]; then
+            echo "::warning::PR title might be too short. Consider adding more context."
+          fi
+          
+          # Warn if PR title is all caps
+          if [ "$PR_TITLE" = "${PR_TITLE^^}" ]; then
+            echo "::warning::PR title is all caps. Consider using normal case."
+          fi
+          
+          echo "PR title check complete"
+
+  pr-size-check:
+    name: PR Size Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Check PR size
+        run: |
+          # Get base and head commits
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          
+          # Count changed files and lines
+          FILES_CHANGED=$(git diff --name-only $BASE_SHA...$HEAD_SHA | wc -l)
+          LINES_CHANGED=$(git diff --stat $BASE_SHA...$HEAD_SHA | tail -1 | grep -oE '[0-9]+ insertion|[0-9]+ deletion' | grep -oE '[0-9]+' | paste -sd+ | bc)
+          
+          echo "Files changed: $FILES_CHANGED"
+          echo "Lines changed: ~$LINES_CHANGED"
+          
+          # Warn if PR is very large
+          if [ $FILES_CHANGED -gt 50 ]; then
+            echo "::warning::This PR changes $FILES_CHANGED files. Consider breaking it into smaller PRs."
+          fi
+          
+          if [ $LINES_CHANGED -gt 1000 ]; then
+            echo "::warning::This PR changes ~$LINES_CHANGED lines. Consider breaking it into smaller PRs."
+          fi
+
+  pr-labels:
+    name: PR Labels Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    
+    steps:
+      - name: Check for labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            
+            if (labels.length === 0) {
+              core.warning('This PR has no labels. Consider adding appropriate labels.');
+            } else {
+              console.log(`PR has ${labels.length} label(s): ${labels.map(l => l.name).join(', ')}`);
+            }
+
+  conflict-check:
+    name: Merge Conflict Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Check for merge conflicts
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          
+          # Try to merge and check for conflicts
+          if git merge-tree $(git merge-base HEAD origin/${{ github.event.pull_request.base.ref }}) origin/${{ github.event.pull_request.base.ref }} HEAD | grep -q "^<<<<<"; then
+            echo "::error::This PR has merge conflicts with ${{ github.event.pull_request.base.ref }}. Please resolve them."
+            exit 1
+          else
+            echo "No merge conflicts detected."
+          fi

@@ -1,0 +1,76 @@
+name: CI
+
+# This is the main CI workflow that runs on pull requests and pushes to main.
+# It serves as a basic template that can be extended with build, test, and deployment steps.
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch: # Allows manual triggering from the Actions tab
+
+# Cancel in-progress workflows when a new commit is pushed
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Basic validation job - extend this as your project grows
+  validate:
+    name: Basic Validation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history for better analysis
+      
+      - name: Check for common issues
+        run: |
+          echo "Running basic validation checks..."
+          
+          # Check for TODO/FIXME comments (informational only)
+          echo "Checking for TODO/FIXME comments..."
+          git grep -n "TODO\|FIXME" || echo "No TODO/FIXME comments found"
+          
+          # Check for trailing whitespace in committed files
+          echo "Checking for trailing whitespace..."
+          ! git grep -I --line-number '[[:blank:]]$' || {
+            echo "::warning::Found trailing whitespace in some files"
+          }
+          
+          echo "Basic validation complete!"
+      
+      - name: Repository structure check
+        run: |
+          echo "Repository structure:"
+          tree -L 2 -a || ls -la
+          
+          echo "Git branch info:"
+          git branch -vv
+          
+          echo "Last commit:"
+          git log -1 --oneline
+
+  # Placeholder for future build jobs
+  # build:
+  #   name: Build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Build project
+  #       run: echo "Add your build commands here"
+  
+  # Placeholder for future test jobs  
+  # test:
+  #   name: Test
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Run tests
+  #       run: echo "Add your test commands here"
