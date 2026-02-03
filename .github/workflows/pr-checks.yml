@@ -1,0 +1,52 @@
+---
+name: PR Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pr-validation:
+    name: Pull Request Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate PR title
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          echo "PR Title: $PR_TITLE"
+
+          # Check if title is not empty
+          if [ -z "$PR_TITLE" ]; then
+            echo "ERROR: PR title cannot be empty"
+            exit 1
+          fi
+          echo "✓ PR title is valid"
+
+      - name: Check for merge conflicts
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          MERGE_BASE=$(git merge-base HEAD origin/${{ github.base_ref }})
+          MERGE_TREE=$(git merge-tree $MERGE_BASE \
+            origin/${{ github.base_ref }} HEAD)
+          if echo "$MERGE_TREE" | grep -q '<<<<<<<'; then
+            echo "ERROR: Merge conflicts detected"
+            exit 1
+          fi
+          echo "✓ No merge conflicts detected"
+
+      - name: Verify files changed
+        run: |
+          BASE="${{ github.base_ref }}"
+          FILES_CHANGED=$(git diff --name-only origin/$BASE...HEAD)
+          echo "Files changed:"
+          echo "$FILES_CHANGED"
+
+          if [ -z "$FILES_CHANGED" ]; then
+            echo "WARNING: No files changed in this PR"
+          fi
