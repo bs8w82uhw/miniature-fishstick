@@ -23,9 +23,6 @@ updates:
       include: "scope"
     labels:
       - "dependencies"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
         
   # Enable version updates for pip (if requirements.txt is added)
   - package-ecosystem: "pip"
