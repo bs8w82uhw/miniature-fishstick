@@ -12,6 +12,8 @@ jobs:
   validate:
     name: Validate Repository
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout code
